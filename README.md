@@ -1,14 +1,19 @@
 https://graphql.org/graphql-js/authentication-and-express-middleware/
 
 Authentication and Express Middleware
-It's simple to use any Express middleware in conjunction with express-graphql. In particular, this is a great pattern for handling authentication.
+It's simple to use any Express middleware in conjunction with express-graphql. In particular, this is a great pattern for 
+handling authentication.
+To use middleware with a GraphQL resolver, just use the middleware like you would with a normal Express app. The request 
+object is then available as the second argument in any resolver.
 
-To use middleware with a GraphQL resolver, just use the middleware like you would with a normal Express app. The request object is then available as the second argument in any resolver.
-
-For example, let's say we wanted our server to log the IP address of every request, and we also want to write an API that returns the IP address of the caller. We can do the former with middleware, and the latter by accessing the request object in a resolver. Here's server code that implements this:
+For example, let's say we wanted our server to log the IP address of every request, and we also want to write an API that 
+returns the IP address of the caller. We can do the former with middleware, and the latter by accessing the request object in 
+a resolver. Here's server code that implements this:
 
 var express = require('express');
+
 var graphqlHTTP = require('express-graphql');
+
 var { buildSchema } = require('graphql');
 
 var schema = buildSchema(`
