@@ -1,71 +1,48 @@
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+https://graphql.org/graphql-js/authentication-and-express-middleware/
 
-## Available Scripts
+Authentication and Express Middleware
+It's simple to use any Express middleware in conjunction with express-graphql. In particular, this is a great pattern for handling authentication.
 
-In the project directory, you can run:
+To use middleware with a GraphQL resolver, just use the middleware like you would with a normal Express app. The request object is then available as the second argument in any resolver.
 
-### `npm start`
+For example, let's say we wanted our server to log the IP address of every request, and we also want to write an API that returns the IP address of the caller. We can do the former with middleware, and the latter by accessing the request object in a resolver. Here's server code that implements this:
 
-Runs the app in the development mode.<br>
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+var express = require('express');
+var graphqlHTTP = require('express-graphql');
+var { buildSchema } = require('graphql');
 
-The page will reload if you make edits.<br>
-You will also see any lint errors in the console.
+var schema = buildSchema(`
+  type Query {
+    ip: String
+  }
+`);
 
-### `npm test`
+function loggingMiddleware(req, res, next) {
+  console.log('ip:', req.ip);
+  next();
+}
 
-Launches the test runner in the interactive watch mode.<br>
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+var root = {
+  ip: function (args, request) {
+    return request.ip;
+  }
+};
 
-### `npm run build`
+var app = express();
+app.use(loggingMiddleware);
+app.use('/graphql', graphqlHTTP({
+  schema: schema,
+  rootValue: root,
+  graphiql: true,
+}));
+app.listen(4000);
+console.log('Running a GraphQL API server at localhost:4000/graphql');
+In a REST API, authentication is often handled with a header, that contains an auth token which proves what user is making this request. Express middleware processes these headers and puts authentication data on the Express request object. Some middleware modules that handle authentication like this are Passport, express-jwt, and express-session. Each of these modules works with express-graphql.
 
-Builds the app for production to the `build` folder.<br>
-It correctly bundles React in production mode and optimizes the build for the best performance.
+If you aren't familiar with any of these authentication mechanisms, we recommend using express-jwt because it's simple without sacrificing any future flexibility.
 
-The build is minified and the filenames include the hashes.<br>
-Your app is ready to be deployed!
+If you've read through the docs linearly to get to this point, congratulations! You now know everything you need to build a practical GraphQL API server.
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
-
-### `npm run eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
-
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (Webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
-
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/code-splitting
-
-### Analyzing the Bundle Size
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size
-
-### Making a Progressive Web App
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app
-
-### Advanced Configuration
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/advanced-configuration
-
-### Deployment
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/deployment
-
-### `npm run build` fails to minify
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify
 
 
 
