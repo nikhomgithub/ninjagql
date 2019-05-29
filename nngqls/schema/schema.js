@@ -116,6 +116,9 @@ module.exports=new GraphQLSchema({
 });
 
 /*
+http://localhost:5000/graphql
+
+
 query{
   author(id:"5caf3df7e13dd21f0c41510d"){
     id
